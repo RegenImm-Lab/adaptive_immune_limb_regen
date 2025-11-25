@@ -8,9 +8,9 @@ Which can be obtained via:
 
 `apptainer pull indrops.sif docker://shengqh/indrops`
 
-# General reprocessing pipeline
+# General processing pipeline
 
-## 1. Download data
+## 1. Download, align, and clean
 The sample sheet for this data can be above called sample.table.txt. Each set of samples are processed in batches based on how they were sequenced (see sample sheet for clarification). For clarity, we have documented how we downloaded and preprocessed each batch in the scripts directory. These can be found under the directories
 01_download_process_align_limb
 02_download_process_align_early_and_med_bud
@@ -28,4 +28,5 @@ Within each subdirectory you will find the steps we took for download and proces
 8. Run Cellbender
 9. Outupt h5ad from Cellbender are then converted to .h5 for use in Seurat.
 10. Now these matrices are ready to load into Seurat and following the analysis provided in the code directory. 
-   
+
+## 2. Analyze
