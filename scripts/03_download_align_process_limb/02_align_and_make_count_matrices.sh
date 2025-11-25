@@ -33,3 +33,35 @@ ${ScriptDIR}bam_to_count_matrix.pl --max_top_cells 1800000 --min_reads 0 --bam C
 ${ScriptDIR}bam_to_count_matrix.pl --max_top_cells 1800000 --min_reads 0 --bam Contra3.reform.sam > NCBI.Contra3.sc.counts.matrix
 
 
+#Intact 1
+python process_rownames.py NCBI.Intact1.sc.counts.matrix NCBI.Intact1.sc.gene.counts.matrix
+#check number of columns
+awk '{print NF}' NCBI.Intact1.sc.gene.counts.matrix | sort -nu | tail -n 1 
+#10817 
+#combine all isoforms into gene level counts
+datamash -g 1 -s -H sum 2-10817 < NCBI.Intact1.sc.gene.counts.matrix > NCBI.Intact1.sc.summed.gene.counts.matrix
+
+#Intact 2
+python process_rownames.py NCBI.Intact2.sc.counts.matrix NCBI.Intact2.sc.gene.counts.matrix
+awk '{print NF}' NCBI.Intact2.sc.gene.counts.matrix | sort -nu | tail -n 1 
+#14099
+#combine all isoforms into gene level counts
+datamash -g 1 -s -H sum 2-14099 < NCBI.Intact2.sc.gene.counts.matrix > NCBI.Intact2.sc.summed.gene.counts.matrix
+
+#Contra 1
+python process_rownames.py NCBI.Contra1.sc.counts.matrix NCBI.Contra1.sc.gene.counts.matrix
+#awk '{print NF}' NCBI.Contra1.sc.counts.matrix | sort -nu | tail -n 1 
+datamash -g 1 -s -H sum 2-19905 < NCBI.Contra1.sc.gene.counts.matrix > NCBI.Contra1.sc.summed.gene.counts.matrix
+
+#Contra 2
+python process_rownames.py NCBI.Contra2.sc.counts.matrix NCBI.Contra2.sc.gene.counts.matrix
+#awk '{print NF}' NCBI.Contra2.sc.counts.matrix | sort -nu | tail -n 1 
+#4400
+datamash -g 1 -s -H sum 2-4400 < NCBI.Contra2.sc.gene.counts.matrix > NCBI.Contra2.sc.summed.gene.counts.matrix
+
+#Contra 3
+python process_rownames.py ../outs/20231128_Intact_Contra/NCBI.Contra3.sc.counts.matrix ../outs/20231128_Intact_Contra/NCBI.Contra3.sc.gene.counts.matrix
+#awk '{print NF}' NCBI.Contra3.sc.counts.matrix | sort -nu | tail -n 1 
+#4870
+datamash -g 1 -s -H sum 2-4870 < NCBI.Contra3.sc.gene.counts.matrix > NCBI.Contra3.sc.summed.gene.counts.matrix
+

@@ -1,18 +1,9 @@
-#!/bin/bash
+#get Seurat.sif file to allow for creation of h5ad from count matrices
+apptainer build Seurat.sif docker://satijalab/seurat:v4.3.0
+#make h5ad for Cellbender
+apptainer  exec  ${ScriptDIR}Seurat.sif Rscript save.Seurat.3dpa.R
 
-#SBATCH --job-name=cellbender         # Job name
-#SBATCH --nodes=1                     # Number of nodes
-#SBATCH --time=                # Time limit (7 days)
-#SBATCH -o %x_%j.out                  # Standard output (%x=job-name, %j=job-id)
-#SBATCH -e %x_%j.err                  # Standard error (%x=job-name, %j=job-id)
-#SBATCH --mail-type=ALL               # Email notifications
-#SBATCH --mail-user=  # Email for notifications
-#SBATCH -A                 # Project allocation
-#SBATCH -p                    # Partition to use (GPU node)
-#SBATCH --ntasks-per-node=16
-#SBATCH --gres=gpu:1
-#SBATCH --mem-per-cpu=5300            # Memory per CPU
-
+#now run cellbender
 pwd; hostname; date
 
 # Accept input parameters
