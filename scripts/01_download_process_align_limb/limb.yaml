@@ -1,0 +1,45 @@
+project_name : 'AxoSC3'
+project_dir : '/lunarc/nobackup/projects/regen_immuno/LabMemberScratchDir/Nick/axolotl/outs/20231128_Intact_Contra'
+
+paths :
+  bowtie_dir : '/Softwares/bowtie-1.1.1/'
+  rsem_dir : ''
+  python_dir : ''
+  java_dir : ''
+  samtools_dir : ''
+  bowtie_index : '/refs'
+
+sequencing_runs :
+  - name :  'limb'
+    version: 'v3'
+    dir : '/intact_contra'
+    fastq_path : 'Undetermined_S0_{split_affix}_{read}_001.fastq.gz'
+    split_affixes : ["L001"]
+    libraries:
+    - {library_name: "Intact1", library_index: "CGGAGAGA"}
+    - {library_name: "Intact2", library_index: "CTAGTCGA"}
+    - {library_name: "Contra1", library_index: "AGCTAGAA"}
+    - {library_name: "Contra2", library_index: "ACTCTAGG"}
+    - {library_name: "Contra3", library_index: "TCTTACGC"}
+parameters :
+  umi_quantification_arguments:
+    m : 10 #Ignore reads with more than M alignments, after filtering on distance from transcript end.
+    u : 2 #Ignore counts from UMI that should be split among more than U genes.
+    d : 600 #Maximal distance from transcript end, NOT INCLUDING THE POLYA TAIL
+    split-ambigs: False #If umi is assigned to m genes, add 1/m to each gene's count (instead of 1)
+    min_non_polyA: 15 #Require reads to align to this much non-polyA sequence. (Set to 0 to disable filtering on this parameter.)
+  output_arguments:
+    output_unaligned_reads_to_other_fastq: False
+    filter_alignments_to_softmasked_regions: False
+  bowtie_arguments:
+    m : 200
+    n : 1
+    l : 15
+    e : 100
+  trimmomatic_arguments:
+    LEADING: "28"
+    SLIDINGWINDOW: "4:20"
+    MINLEN: "16"
+    argument_order: ['LEADING', 'SLIDINGWINDOW', 'MINLEN']
+  low_complexity_filter_arguments:
+    max_low_complexity_fraction : 0.50

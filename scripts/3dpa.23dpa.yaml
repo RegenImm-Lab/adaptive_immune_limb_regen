@@ -1,0 +1,46 @@
+project_name : 'AxoSC3'
+project_dir : '/lunarc/nobackup/projects/regen_immuno/LabMemberScratchDir/Nick/axolotl/outs/3dpa_23dpa_inDrops'
+
+paths :
+  bowtie_dir : '/Softwares/bowtie-1.1.1/'
+  rsem_dir : ''
+  python_dir : ''
+  java_dir : ''
+  samtools_dir : ''
+  bowtie_index : '/refs/'
+
+sequencing_runs :
+  - name :  '3dpa_23dpa'
+    version: 'v3'
+    dir : '/woundHealing_medBud/'
+    fastq_path : 'Undetermined_S0_{split_affix}_{read}_001.fastq.gz'
+    split_affixes : ["L001"]
+    libraries:
+    - {library_name: "23dpa4", library_index: "CAGTTATG"}
+    - {library_name: "23dpa5", library_index: "CCTTTACT"}
+    - {library_name: "23dpa6", library_index: "GAGACGGA"}
+    - {library_name: "3dpa1", library_index: "AGAAAGCT"}
+    - {library_name: "3dpa2", library_index: "ACGCTCTT"}
+    - {library_name: "3dpa3", library_index: "CGCATTCT"}
+parameters :
+  umi_quantification_arguments:
+    m : 10 #Ignore reads with more than M alignments, after filtering on distance from transcript end.
+    u : 2 #Ignore counts from UMI that should be split among more than U genes.
+    d : 600 #Maximal distance from transcript end, NOT INCLUDING THE POLYA TAIL
+    split-ambigs: False #If umi is assigned to m genes, add 1/m to each gene's count (instead of 1)
+    min_non_polyA: 15 #Require reads to align to this much non-polyA sequence. (Set to 0 to disable filtering on this parameter.)
+  output_arguments:
+    output_unaligned_reads_to_other_fastq: False
+    filter_alignments_to_softmasked_regions: False
+  bowtie_arguments:
+    m : 200
+    n : 1
+    l : 15
+    e : 100
+  trimmomatic_arguments:
+    LEADING: "28"
+    SLIDINGWINDOW: "4:20"
+    MINLEN: "16"
+    argument_order: ['LEADING', 'SLIDINGWINDOW', 'MINLEN']
+  low_complexity_filter_arguments:
+    max_low_complexity_fraction : 0.50

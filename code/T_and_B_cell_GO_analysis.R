@@ -705,6 +705,120 @@ DimPlot(
     legend.title = element_blank(),
   ) 
 
+
+
+
+#now get dynamics across regeneration
+immune_md <- immune_filtered@meta.data %>%
+  tibble::rownames_to_column("cell") %>%
+  as_tibble()
+
+#set order of samples
+immune_md[[time_col]] <- factor(immune_md[[time_col]], levels = c("limb", "dpa3", "dpa14", "dpa23"))
+
+#total cell counts per time point and rep
+totals <- immune_md %>%
+  group_by(.data[[time_col]], .data[[rep_col]]) %>%
+  summarise(total_n = n(), .groups = "drop")
+colnames(immune_md)
+
+#valuea of interest
+time_col  <- "group"
+rep_col   <- "sample_id"
+annot_col <- "cytetype_annos"
+
+#total per time poitn and rep
+totals <- immune_md %>%
+  group_by(.data[[time_col]], .data[[rep_col]]) %>%
+  summarise(total_n = n(), .groups = "drop")
+
+#cluster  per stage, replicate, and cluster
+cluster_counts <- immune_md %>%
+  group_by(.data[[time_col]], .data[[rep_col]], .data[[annot_col]]) %>%
+  summarise(cluster_n = n(), .groups = "drop") %>%
+  complete(
+    !!sym(time_col),
+    !!sym(rep_col),
+    !!sym(annot_col),
+    fill = list(cluster_n = 0)
+  ) %>%
+  left_join(totals, by = c(time_col, rep_col)) %>%
+  mutate(
+    pct_cluster = ifelse(total_n > 0, 100 * cluster_n / total_n, 0)
+  )
+
+#summarize across replicates
+sumdf_cluster <- cluster_counts %>%
+  filter(total_n > 0) %>%  # exclude fake combos
+  group_by(.data[[time_col]], .data[[annot_col]]) %>%
+  summarise(
+    mean_pct = mean(pct_cluster, na.rm = TRUE),
+    sd       = sd(pct_cluster, na.rm = TRUE),
+    n        = dplyr::n(),  # now reflects actual replicates
+    se       = sd / sqrt(n),
+    ci_low   = mean_pct - 1.96 * se,
+    ci_high  = mean_pct + 1.96 * se,
+    .groups  = "drop"
+  )
+
+
+lvl <- levels(Idents(immune_filtered))
+
+pal <- setNames(viridisLite::viridis(length(lvl), option = "D"), lvl)
+
+
+# 1) Build a named palette once (names = cell types, values = hex colors)
+#    You can generate from current levels or hand-pick colors.
+library(viridisLite)
+
+annot_col <- "cytetype_annos"
+celltypes <- levels(factor(cluster_counts[[annot_col]]))
+pal <- setNames(viridisLite::viridis(length(celltypes), option = "D"), celltypes)
+
+# 2) Plot with color mapped to cell type and manual scale
+dynamics <- ggplot() +
+  # replicate-level points colored by cell type
+  geom_point(
+    data = cluster_counts,
+    aes(x = .data[[time_col]], y = pct_cluster, color = .data[[annot_col]]),
+    position = position_jitter(width = 0.18, height = 0),
+    alpha = 0.7, size = 3
+  ) +
+  # mean per stage colored by cell type
+  geom_point(
+    data = sumdf_cluster,
+    aes(x = .data[[time_col]], y = mean_pct, color = .data[[annot_col]]),
+    size = 3
+  ) +
+  #add CIs
+  geom_errorbar(
+    data = sumdf_cluster,
+    aes(x = .data[[time_col]], ymin = ci_low, ymax = ci_high),
+    width = 0.12, color = "black"
+  ) +
+  scale_color_manual(values = pal) +                       
+  scale_y_continuous(name = "% of Immune cells", limits = c(0, 100)) +
+  scale_x_discrete(labels = c("limb"  = "Limb",
+                              "dpa3"  = "Wound\nHealing",
+                              "dpa14" = "Early\nBud",
+                              "dpa23" = "Medium\nBud")) +
+  xlab("Regeneration stage") +
+  facet_wrap(vars(.data[[annot_col]]), nrow = 5) +
+  theme_classic(base_size = 12) +
+  theme(
+    strip.text  = element_text(size = 12),
+    axis.text.y = element_text(size = 12),
+    axis.title.y = element_text(size = 14), 
+    strip.background = ggplot2::element_rect(fill = "grey85", color = NA),
+    legend.position = "none")
+  
+
+
+ggsave("../../../../../../../../../../Desktop/papers/2025/Rag1/SupplmentalFigure2.pdf", plot = dynamics, width = 10, height =10, units = "in") 
+dev.off()
+
+
+
 #saveRDS(immune_filtered, '20251114.immune_only.rds')
 
 ##----------GO Analysis of abundant cells-----------------##
