@@ -30,3 +30,4 @@ Within each subdirectory you will find the steps we took for download and proces
 10. Now these matrices are ready to load into Seurat and following the analysis provided in the code directory. 
 
 ## 2. Analyze
+1. In the 'code' folder above there is a Quarto markdown with all code to reproduce the figures in the mansucript. This takes the outputs generated from the steps above, performs clustering, cell annotation, differential expression, and gene ontology analysis. 
